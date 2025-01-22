@@ -2,11 +2,13 @@
 
 #include <glad/glad.h>
 #include <glfw/glfw3.h>
+#include <core/Input.h>
 
 class Window
 {
 private:
 	GLFWwindow* window;
+	Input input;
 	int fb_width, fb_height;
 
 	static void FramebufferSizeCallback(GLFWwindow* window, int width, int height);
@@ -23,5 +25,8 @@ public:
 	GLFWwindow* getWindow() { return window; }
 	int getFBWidth() { return fb_width; }
 	int getFBHeight() { return fb_height; }
+
+	Input getInput() { return input; }
+	void processInput();
 };
 

@@ -134,14 +134,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\renderer\Shader.cpp" />
+    <ClCompile Include="src\core\Game\Chunk.cpp" />
+    <ClCompile Include="src\core\Game\Block.cpp" />
     <ClCompile Include="include\glad.c" />
+    <ClCompile Include="src\core\Input.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\renderer\Renderer.cpp" />
     <ClCompile Include="src\core\Window.cpp" />
+    <ClCompile Include="src\renderer\Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\core\Game\Chunk.h" />
+    <ClInclude Include="include\core\Game\Block.h" />
     <ClInclude Include="include\renderer\Renderer.h" />
     <ClInclude Include="include\core\Window.h" />
+    <ClInclude Include="include\core\Input.h" />
+    <ClInclude Include="include\renderer\Texture.h" />
+    <ClInclude Include="include\renderer\Shader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

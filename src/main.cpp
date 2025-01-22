@@ -1,6 +1,9 @@
 #include <iostream>
+#include <renderer/Renderer.h>
 
 int main() {
-	std::cout << "Hello, World!" << std::endl;
+	Renderer renderer;
+	renderer.start(800, 800, "OpenGL Window");
+	renderer.update();
 	return 0;
 }

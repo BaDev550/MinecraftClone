@@ -71,6 +71,7 @@ void Window::ClearScreen()
 
 void Window::SwapBuffers()
 {
+	glfwGetFramebufferSize(window, &fb_width, &fb_height);
 	glfwSwapBuffers(window);
 	glfwPollEvents();
 }
@@ -78,6 +79,12 @@ void Window::SwapBuffers()
 bool Window::ShouldClose()
 {
 	return glfwWindowShouldClose(window);
+}
+
+void Window::processInput()
+{
+	if (input.isKeyPressed(GLFW_KEY_ESCAPE))
+		glfwSetWindowShouldClose(window, true);
 }
 
 Window::~Window()
