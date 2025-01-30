@@ -65,13 +65,13 @@ bool Window::CreateWindow(int width, int height, const char* title)
 
 void Window::ClearScreen()
 {
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glfwGetFramebufferSize(window, &fb_width, &fb_height);
 }
 
 void Window::SwapBuffers()
 {
-	glfwGetFramebufferSize(window, &fb_width, &fb_height);
 	glfwSwapBuffers(window);
 	glfwPollEvents();
 }

@@ -3,7 +3,12 @@
 #include <fstream>
 #include <sstream>
 
-Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath)
+Shader::~Shader()
+{
+	glDeleteProgram(shaderID);
+}
+
+void Shader::setupShader(const std::string& vertexPath, const std::string& fragmentPath)
 {
     std::string vertexCode = readFile(vertexPath);
     std::string fragmentCode = readFile(fragmentPath);
@@ -28,11 +33,6 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath)
     glDeleteShader(fragment);
 }
 
-Shader::~Shader()
-{
-	glDeleteProgram(shaderID);
-}
-
 void Shader::use() const
 {
 	glUseProgram(shaderID);
@@ -48,6 +48,12 @@ void Shader::setVec2(const std::string& name, const glm::vec2& value) const
 {
 	use();
 	glUniform2fv(glGetUniformLocation(shaderID, name.c_str()), 1, &value[0]);
+}
+
+void Shader::setMat4(const std::string& name, const glm::mat4& value) const
+{
+	use();
+	glUniformMatrix4fv(glGetUniformLocation(shaderID, name.c_str()), 1, GL_FALSE, &value[0][0]);
 }
 
 unsigned int Shader::compileShader(unsigned int type, const std::string& source)

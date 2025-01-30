@@ -1,18 +1,28 @@
 #pragma once
 
 #include <core/Window.h>
+#include <core/Camera.h>
+#include <core/Game/Chunk.h>
 #include <string>
 
 class Renderer
 {
 private:
 	unsigned int w_Width{ 800 };
-	unsigned int w_Height{ 600 };
+	unsigned int w_Height{ 800 };
 	std::string w_Title = "OpenGL Window";
 	Window window;
 
 	int wfb_Width{};
 	int wfb_Height{};
+
+	Shader core_shader;
+	Texture texture_atlas;
+
+	Chunk chunk;
+
+	float deltaTime;
+	float lastFrame;
 public:
 	Renderer() {}
 	~Renderer();
