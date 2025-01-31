@@ -25,8 +25,9 @@ private:
 	Raycaster raycaster;
 
 	int viewDistance = 10;
+	int renderDistance = 25;
 
-	std::vector<Chunk> chunks;
+	Chunk chunk;
 
 	float deltaTime;
 	float lastFrame;

@@ -73,6 +73,9 @@ void Window::ClearScreen()
 
 void Window::SwapBuffers()
 {
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_FRONT);
+	//glFrontFace(GL_CW);
 	glfwSwapBuffers(window);
 	glfwPollEvents();
 }

@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
 #include <renderer/Texture.h>
 #include <renderer/Shader.h>
 #include <vector>
@@ -12,7 +13,7 @@ enum BlockType {
     AIR,
     DIRT,
 	LEAVES,
-	WOOD,
+	OAK_WOOD,
 	PLANK,
     GRASS,
     STONE,
@@ -64,11 +65,13 @@ public:
 
 	void render(Texture& textureAtlas, Shader& shader);
 	void setPos(glm::vec3 pos) { position = pos; }
+	void setRot(glm::quat rot) { rotation = rot; }
 
 	bool isSolid() const;
 	bool isLiquid() const;
 
 	glm::vec3 position;
+	glm::quat rotation;
 	std::vector<glm::vec2> texCoords;
 	bool bVisible = true;
 };

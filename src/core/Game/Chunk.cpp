@@ -30,13 +30,36 @@ void Chunk::setBlock(int x, int y, int z, BlockType type)
     blocks[index] = Block(type, glm::vec3(x, y, z));
 }
 
-void Chunk::addBlock(int x, int y, int z, BlockType type)
+void Chunk::addBlock(int x, int y, int z, BlockType type, const glm::vec3& cameraPos, const glm::vec3& cameraFront)
 {
     if (y < 0 || y >= MAX_HEIGHT) return;
 
     int index = blockIndex(x, y, z);
     blocks[index] = Block(type, glm::vec3(x, y, z));
     blocks[index].init();
+
+    glm::vec3 direction = glm::normalize(cameraFront);
+    glm::quat rotation = glm::quat(1, 0, 0, 0);
+
+    if (glm::abs(direction.y) > 0.9f) {
+        rotation = glm::quat(1, 0, 0, 0);
+    }
+    else {
+        if (direction.x > 0.5f) {
+            rotation = glm::quat(glm::radians(90.0f), glm::vec3(0, 1, 0));
+        }
+        else if (direction.x < -0.5f) {
+            rotation = glm::quat(glm::radians(-90.0f), glm::vec3(0, 1, 0));
+        }
+        else if (direction.z > 0.5f) {
+            rotation = glm::quat(0, 0, 0, 1);
+        }
+        else {
+            rotation = glm::quat(glm::radians(180.0f), glm::vec3(0, 1, 0));
+        }
+    }
+
+    blocks[index].setRot(rotation);
 }
 
 void Chunk::removeBlock(int x, int y, int z)
@@ -82,24 +105,23 @@ void Chunk::generateTrain()
         for (int z = 0; z < depth; ++z) {
             for (int y = 0; y < MAX_HEIGHT; ++y) {
                 BlockType type = (y == 0) ? BEDROCK : (y == height - 1) ? GRASS : ((y > height / 2) ? DIRT : STONE);
+                int index = blockIndex(x, y, z);
                 if (y < height) {
-                    addBlock(x, y, z, type);
-                }
-                else {
-                    //addBlock(x, y, z, AIR);
+                    setBlock(x, y, z, type);
+                    blocks[index].init();
                 }
             }
         }
     }
 }
 
-void Chunk::renderChunk(Shader& shader, Texture& textureAtlas, glm::vec3 cameraPos, bool outline)
+void Chunk::renderChunk(Shader& shader, Texture& textureAtlas, glm::vec3 cameraPos, float renderDistance)
 {
     for (auto& pair : blocks) {
         Block& block = pair.second;
         float distance = glm::distance(block.position, cameraPos);
 
-        if (distance > 30.0f)
+        if (distance > renderDistance)
         {
             continue;
         }

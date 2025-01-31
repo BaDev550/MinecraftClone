@@ -1,5 +1,10 @@
 #include <core/Input.h>
 
+Input::Input()
+{
+
+}
+
 bool Input::isKeyPressed(int keycode, bool shift, bool control)
 {
 	if (shift)
@@ -22,17 +27,16 @@ bool Input::isMouseButtonPressed(int button)
     return (glfwGetMouseButton(glfwGetCurrentContext(), button) == GLFW_PRESS);
 }
 
+bool Input::isMouseButtonClicked(int button)
+{
+    return false;
+}
+
 bool Input::isMouseButtonReleased(int button)
 {
     return (glfwGetMouseButton(glfwGetCurrentContext(), button) == GLFW_RELEASE);
 }
 
-float Input::getMouseX()
+void Input::update()
 {
-    return 0.0f;
-}
-
-float Input::getMouseY()
-{
-    return 0.0f;
 }
