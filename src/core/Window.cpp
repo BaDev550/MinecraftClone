@@ -43,6 +43,9 @@ bool Window::CreateWindow(int width, int height, const char* title)
 	glfwSwapInterval(1);
 	glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
 	glfwGetFramebufferSize(window, &fb_width, &fb_height);
+	glfwSetErrorCallback([](int error, const char* description) {
+		std::cout << "GLFW Error: " << description << std::endl;
+	});
 
 	if (gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
@@ -55,10 +58,7 @@ bool Window::CreateWindow(int width, int height, const char* title)
 		glfwTerminate();
 		return false;
 	}
-	glViewport(0, 0, fb_width, fb_height);
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glViewport(0, 0, width, height);
 
 	return true;
 }
@@ -66,6 +66,7 @@ bool Window::CreateWindow(int width, int height, const char* title)
 void Window::ClearScreen()
 {
 	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+	glEnable(GL_DEPTH_TEST);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glfwGetFramebufferSize(window, &fb_width, &fb_height);
 }

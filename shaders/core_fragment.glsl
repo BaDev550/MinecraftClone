@@ -7,8 +7,5 @@ uniform sampler2D textureAtlas;
 
 void main() {
     vec4 texColor = texture(textureAtlas, TexCoord);
-    if (texColor.a < 0.1) {
-        discard;
-    }
     FragColor = texColor;
 }

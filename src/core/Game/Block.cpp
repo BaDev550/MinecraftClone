@@ -1,7 +1,4 @@
 #include <core/Game/Block.h>
-#include <vector>
-#include <iostream>
-#include <stdexcept>
 
 void Block::initializeBuffers()
 {
@@ -11,8 +8,8 @@ void Block::initializeBuffers()
 	updateBuffers();
 }
 
-std::vector<Vertex> vertices;
 std::vector<unsigned int> indices;
+std::vector<Vertex> vertices;
 
 void Block::updateBuffers()
 {
@@ -21,68 +18,62 @@ void Block::updateBuffers()
 	for (int face = 0; face < 6; ++face) {
 		if (!visibleFaces[face]) continue;
 
-		glm::vec2 texCoords = getUVCoords(face);
-		unsigned int startIdx = vertices.size();
+		texCoords = getUVCoords(face);
+		unsigned int startIdx = round(vertices.size());
 
+		glm::vec3 positions[4];
 		switch (face) {
 		case 0: // Top face
-			vertices.insert(vertices.end(), {
-				{ glm::vec3(position.x + 1.0f, position.y + 1.0f, position.z), texCoords },
-				{ glm::vec3(position.x, position.y + 1.0f, position.z), texCoords },
-				{ glm::vec3(position.x, position.y + 1.0f, position.z + 1.0f), texCoords },
-				{ glm::vec3(position.x + 1.0f, position.y + 1.0f, position.z + 1.0f), texCoords }
-				});
+			positions[0] = glm::vec3(position.x + 1.0f, position.y + 1.0f, position.z);
+			positions[3] = glm::vec3(position.x, position.y + 1.0f, position.z);
+			positions[2] = glm::vec3(position.x, position.y + 1.0f, position.z + 1.0f);
+			positions[1] = glm::vec3(position.x + 1.0f, position.y + 1.0f, position.z + 1.0f);
 			break;
 		case 1: // Bottom face
-			vertices.insert(vertices.end(), {
-				{ glm::vec3(position.x, position.y, position.z), texCoords },
-				{ glm::vec3(position.x + 1.0f, position.y, position.z), texCoords },
-				{ glm::vec3(position.x + 1.0f, position.y, position.z + 1.0f), texCoords },
-				{ glm::vec3(position.x, position.y, position.z + 1.0f), texCoords }
-				});
+			positions[0] = glm::vec3(position.x, position.y, position.z);
+			positions[3] = glm::vec3(position.x + 1.0f, position.y, position.z);
+			positions[2] = glm::vec3(position.x + 1.0f, position.y, position.z + 1.0f);
+			positions[1] = glm::vec3(position.x, position.y, position.z + 1.0f);
 			break;
 		case 2: // Left face
-			vertices.insert(vertices.end(), {
-				{ glm::vec3(position.x, position.y, position.z), texCoords },
-				{ glm::vec3(position.x, position.y + 1.0f, position.z), texCoords },
-				{ glm::vec3(position.x, position.y + 1.0f, position.z + 1.0f), texCoords },
-				{ glm::vec3(position.x, position.y, position.z + 1.0f), texCoords }
-				});
+			positions[0] = glm::vec3(position.x, position.y, position.z);
+			positions[1] = glm::vec3(position.x, position.y + 1.0f, position.z);
+			positions[2] = glm::vec3(position.x, position.y + 1.0f, position.z + 1.0f);
+			positions[3] = glm::vec3(position.x, position.y, position.z + 1.0f);
 			break;
 		case 3: // Right face
-			vertices.insert(vertices.end(), {
-				{ glm::vec3(position.x + 1.0f, position.y, position.z), texCoords },
-				{ glm::vec3(position.x + 1.0f, position.y + 1.0f, position.z), texCoords },
-				{ glm::vec3(position.x + 1.0f, position.y + 1.0f, position.z + 1.0f), texCoords },
-				{ glm::vec3(position.x + 1.0f, position.y, position.z + 1.0f), texCoords }
-				});
+			positions[0] = glm::vec3(position.x + 1.0f, position.y, position.z);
+			positions[1] = glm::vec3(position.x + 1.0f, position.y + 1.0f, position.z);
+			positions[2] = glm::vec3(position.x + 1.0f, position.y + 1.0f, position.z + 1.0f);
+			positions[3] = glm::vec3(position.x + 1.0f, position.y, position.z + 1.0f);
 			break;
 		case 4: // Front face
-			vertices.insert(vertices.end(), {
-				{ glm::vec3(position.x, position.y, position.z + 1.0f), texCoords },
-				{ glm::vec3(position.x + 1.0f, position.y, position.z + 1.0f), texCoords },
-				{ glm::vec3(position.x + 1.0f, position.y + 1.0f, position.z + 1.0f), texCoords },
-				{ glm::vec3(position.x, position.y + 1.0f, position.z + 1.0f), texCoords }
-				});
+			positions[0] = glm::vec3(position.x, position.y, position.z + 1.0f);
+			positions[3] = glm::vec3(position.x + 1.0f, position.y, position.z + 1.0f);
+			positions[2] = glm::vec3(position.x + 1.0f, position.y + 1.0f, position.z + 1.0f);
+			positions[1] = glm::vec3(position.x, position.y + 1.0f, position.z + 1.0f);
 			break;
 		case 5: // Back face
-			vertices.insert(vertices.end(), {
-				{ glm::vec3(position.x, position.y, position.z), texCoords },
-				{ glm::vec3(position.x + 1.0f, position.y, position.z), texCoords },
-				{ glm::vec3(position.x + 1.0f, position.y + 1.0f, position.z), texCoords },
-				{ glm::vec3(position.x, position.y + 1.0f, position.z), texCoords }
-				});
+			positions[0] = glm::vec3(position.x, position.y, position.z);
+			positions[3] = glm::vec3(position.x + 1.0f, position.y, position.z);
+			positions[2] = glm::vec3(position.x + 1.0f, position.y + 1.0f, position.z);
+			positions[1] = glm::vec3(position.x, position.y + 1.0f, position.z);
 			break;
 		}
 
-		indices.insert(indices.end(), {
-			startIdx, startIdx + 1, startIdx + 2,
-			startIdx, startIdx + 2, startIdx + 3
-			});
+        vertices.push_back({ positions[0], texCoords[0] });
+        vertices.push_back({ positions[3], texCoords[3] });
+        vertices.push_back({ positions[2], texCoords[2] });
+        vertices.push_back({ positions[1], texCoords[1] });
+
+        indices.insert(indices.end(), {
+            startIdx, startIdx + 1, startIdx + 2,
+            startIdx + 2, startIdx + 3, startIdx
+        });
 	}
 
-	if (vertices.size() == 0) return;
-	if (indices.size() == 0) return;
+	if (vertices.empty()) return;
+	if (indices.empty()) return;
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
@@ -93,7 +84,7 @@ void Block::updateBuffers()
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
 	glEnableVertexAttribArray(0);
 
-	glVertexAttribPointer(1, 2, GL_UNSIGNED_INT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoords));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoords));
 	glEnableVertexAttribArray(1);
 
 	glBindVertexArray(0);
@@ -101,6 +92,7 @@ void Block::updateBuffers()
 
 void Block::init()
 {
+	for (int face = 0; face < 6; ++face) visibleFaces[face] = true;
 	initializeBuffers();
 }
 
@@ -112,22 +104,26 @@ void Block::setVisibleFaces(bool top, bool bottom, bool left, bool right, bool f
 	visibleFaces[3] = right;
 	visibleFaces[4] = front;
 	visibleFaces[5] = back;
+	if ((top && bottom && left && right && front && back) == false) { std::cout << "not visible!" << std::endl; bVisible = false; }
+
 	updateBuffers();
 }
 
-void Block::render(Texture& textureAtlas, Shader& shader, const glm::mat4& projection, const glm::mat4& view)
+void Block::render(Texture& textureAtlas, Shader& shader)
 {
-	shader.use();
+	if (bVisible) {
+		shader.use();
 
-	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::translate(model, position);
+		glm::mat4 model = glm::mat4(1.0f);
+		shader.setMat4("model", model);
 
-	shader.setMat4("model", model);
-
-	textureAtlas.bind(0);
-	glBindVertexArray(VAO);
-	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
+		textureAtlas.bind(0);
+		glBindVertexArray(VAO);
+		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+	}
+	indices.clear();
+	vertices.clear();
 }
 
 bool Block::isSolid() const
@@ -153,20 +149,50 @@ bool Block::isLiquid() const
 	}
 }
 
-glm::vec2 Block::getUVCoords(int face) const
+std::vector<glm::vec2> Block::getUVCoords(int face)
 {
 	// 0 is top face and 1 is the bottom
 	switch (type)
 	{
 	case GRASS:
-		//if (face == 0) return glm::vec2(0.5f, 0.5f);
-		//if (face == 1) return glm::vec2(0.25f, 0.0f);
-		return glm::vec2(0.125f, 0.375f);
+		if (face == 0) {
+			return {
+				glm::vec2(0.06250f, 0.93750f),
+				glm::vec2(0.06250f, 1.00000f),
+				glm::vec2(0.09375f, 1.00000f),
+				glm::vec2(0.09375f, 0.93750f),
+			};
+		}
+		return {
+			glm::vec2(0.31250f, 0.93750f),
+			glm::vec2(0.31250f, 1.00000f),
+			glm::vec2(0.34375f, 1.00000f),
+			glm::vec2(0.34375f, 0.93750f),
+		};
 	case DIRT:
-		return glm::vec2(0.25f, 0.0f);
+		return {
+			glm::vec2(0.56250f, 0.87500f),
+			glm::vec2(0.56250f, 0.93750f),
+			glm::vec2(0.59375f, 0.93750f),
+			glm::vec2(0.59375f, 0.87500f),
+		};
 	case STONE:
-		return glm::vec2(0.5f, 0.0f);
+		return {
+			glm::vec2(0.59375f, 0.93750f),
+			glm::vec2(0.59375f, 1.00000f),
+			glm::vec2(0.62500f, 1.00000f),
+			glm::vec2(0.62500f, 0.93750f),
+		};
+	case COBBLESTONE:
+		return {
+			glm::vec2(0.00f, 0.88f),
+			glm::vec2(0.00f, 0.94f),
+			glm::vec2(0.06f, 0.94f),
+			glm::vec2(0.06f, 0.88f)
+		};
 	default:
-		return glm::vec2(0.0f, 0.0f);
+		return {
+			glm::vec2(0.0f, 0.0f),
+		};
 	}
 }

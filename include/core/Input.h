@@ -4,7 +4,7 @@
 class Input
 {
 public:
-	static bool isKeyPressed(int keycode);
+	static bool isKeyPressed(int keycode, bool shift = false, bool control = false);
 	static bool isKeyReleased(int keycode);
 	static bool isMouseButtonPressed(int button);
 	static bool isMouseButtonReleased(int button);

@@ -4,6 +4,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <renderer/Texture.h>
 #include <renderer/Shader.h>
+#include <vector>
+#include <iostream>
+#include <stdexcept>
 
 enum BlockType {
     AIR,
@@ -41,7 +44,7 @@ struct Vertex {
 class Block
 {
 private:
-	GLuint VAO, VBO, EBO;
+	GLuint VAO{ 0 }, VBO{ 0 }, EBO{ 0 };
 
 	bool visibleFaces[6];
 
@@ -49,10 +52,9 @@ private:
 	void updateBuffers();
 
 	BlockType type;
-	glm::vec3 position;
-	glm::vec2 texCoords;
-public:
 
+	std::vector<glm::vec2> getUVCoords(int face);
+public:
 	Block(BlockType type = AIR, glm::vec3 position = glm::vec3(0.0f)) : type(type), position(position) {}
 	void init();
 	void setVisibleFaces(bool top, bool bottom, bool left, bool right, bool front, bool back);
@@ -60,12 +62,14 @@ public:
 	BlockType getBlockType() const { return type; }
 	void setType(BlockType newType) { type = newType; }
 
-	void render(Texture& textureAtlas, Shader& shader, const glm::mat4& projection, const glm::mat4& view);
+	void render(Texture& textureAtlas, Shader& shader);
 	void setPos(glm::vec3 pos) { position = pos; }
 
 	bool isSolid() const;
 	bool isLiquid() const;
 
-	glm::vec2 getUVCoords(int face) const;
+	glm::vec3 position;
+	std::vector<glm::vec2> texCoords;
+	bool bVisible = true;
 };
 

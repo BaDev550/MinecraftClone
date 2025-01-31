@@ -1,7 +1,14 @@
 #include <core/Input.h>
 
-bool Input::isKeyPressed(int keycode)
+bool Input::isKeyPressed(int keycode, bool shift, bool control)
 {
+	if (shift)
+	{
+		return (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS && glfwGetKey(glfwGetCurrentContext(), keycode) == GLFW_PRESS);
+	}
+    if (control) {
+		return (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS && glfwGetKey(glfwGetCurrentContext(), keycode) == GLFW_PRESS);
+    }
     return (glfwGetKey(glfwGetCurrentContext(), keycode) == GLFW_PRESS);
 }
 
