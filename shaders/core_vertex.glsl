@@ -6,10 +6,16 @@ layout (location = 1) in vec2 aTexCoord;
 uniform mat4 projection;
 uniform mat4 view;
 uniform mat4 model;
+uniform vec3 cameraPos;
 
 out vec2 TexCoord;
+out float FogFactor;
 
 void main() {
-    gl_Position = projection * view * model * vec4(aPos, 1.0);
+    vec4 worldPosition = model * vec4(aPos, 1.0);
+    vec3 viewDirection = cameraPos - worldPosition.xyz;
+    FogFactor = length(viewDirection);
+
     TexCoord = aTexCoord;
+    gl_Position = projection * view * worldPosition;
 }

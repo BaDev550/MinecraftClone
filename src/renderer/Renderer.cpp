@@ -75,6 +75,10 @@ void Renderer::render()
 
 	core_shader.setMat4("projection", projection);
 	core_shader.setMat4("view", view);
+	core_shader.setVec3("cameraPos", camera.Position);
+	core_shader.setInt("fogStart", 50.0f);
+	core_shader.setInt("fogEnd", 200.0f);
+	core_shader.setVec3("fogColor", glm::vec3(0.5f, 0.5f, 0.5f));
 
 	raycaster.init(projection, view);
 

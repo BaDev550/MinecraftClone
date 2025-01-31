@@ -22,13 +22,14 @@ public:
 	void removeBlock(int x, int y, int z);
 
 	void renderChunk(Shader& shader, Texture& textureAtlas, glm::vec3 cameraPos, float renderDistance);
-	bool sendBlockProps(Block& block, int x, int y, int z);
+	bool sendBlockProps(Block& block, glm::vec3& position);
 	void generateTrain();
 
 	std::unordered_map<int, Block> blocks;
 
 	double heightMap;
 private:
+	unsigned int instance_buffer;
 	int width, height, depth;
 
 	Shader outline_shader;

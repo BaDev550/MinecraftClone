@@ -38,6 +38,12 @@ void Shader::use() const
 	glUseProgram(shaderID);
 }
 
+void Shader::setInt(const std::string& name, const int& value) const
+{
+    use();
+    glUniform1i(glGetUniformLocation(shaderID, name.c_str()), value);
+}
+
 void Shader::setVec3(const std::string& name, const glm::vec3& value) const
 {
     use();

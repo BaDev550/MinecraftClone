@@ -46,8 +46,6 @@ struct Vertex {
 class Block
 {
 private:
-	GLuint VAO{ 0 }, VBO{ 0 }, EBO{ 0 };
-
 	bool visibleFaces[6];
 
 	void initializeBuffers();
@@ -57,6 +55,9 @@ private:
 
 	std::vector<glm::vec2> getUVCoords(int face);
 public:
+	std::vector<unsigned int> indices;
+	std::vector<Vertex> vertices;
+
 	Block(BlockType type = AIR, glm::vec3 position = glm::vec3(0.0f)) : type(type), position(position) {}
 	void init();
 	void setVisibleFaces(bool top, bool bottom, bool left, bool right, bool front, bool back);
@@ -70,6 +71,7 @@ public:
 
 	bool isSolid() const;
 	bool isLiquid() const;
+	GLuint VAO{ 0 }, VBO{ 0 }, EBO{ 0 };
 
 	glm::vec3 position;
 	glm::vec3 scale = glm::vec3(1.0f);

@@ -66,12 +66,16 @@ bool Chunk::isFaceVisible(int x, int y, int z) {
     }
 }
 
-bool Chunk::sendBlockProps(Block& block, int x, int y, int z) {
+bool Chunk::sendBlockProps(Block& block, glm::vec3& position) {
 
     if (block.getBlockType() == AIR) {
         block.setVisibleFaces(false, false, false, false, false, false);
         return false;
     }
+
+    int x = (int)position.x;
+    int y = (int)position.y;
+    int z = (int)position.z;
 
     auto blockExists = [&](int x, int y, int z) -> bool {
         int index = blockIndex(x, y, z);
@@ -100,14 +104,17 @@ void Chunk::generateTrain()
 
                 setBlock(x, y, z, type);
                 blocks[index].init();
-                sendBlockProps(blocks[index], x, y, z);
             }
         }
     }
+    glGenBuffers(1, &instance_buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, instance_buffer);
+    glBufferData(GL_ARRAY_BUFFER, (height * width * depth) * sizeof(glm::mat4), &blocks[0].position, GL_STATIC_DRAW);
 }
 
 void Chunk::renderChunk(Shader& shader, Texture& textureAtlas, glm::vec3 cameraPos, float renderDistance)
 {
+    shader.use();
     GLenum err = glGetError();
     if (err != GL_NO_ERROR) {
         std::cout << "OpenGL Error: " << err << std::endl;
@@ -117,11 +124,25 @@ void Chunk::renderChunk(Shader& shader, Texture& textureAtlas, glm::vec3 cameraP
         float distance = glm::distance(block.position, cameraPos);
 
         if (distance > renderDistance) continue;
-        if (!sendBlockProps(block, block.position.x, block.position.y, block.position.z)) {
+        if (!sendBlockProps(block, block.position)) continue;
+        if (!block.bVisible || block.indices.empty()) {
+            block.indices.clear();
+            block.vertices.clear();
+            glBindVertexArray(0);
+            textureAtlas.unbind();
             continue;
         }
 
-        block.render(textureAtlas, shader);
+        glm::mat4 model = glm::mat4(1.0f);
+        shader.setMat4("model", model);
+
+        textureAtlas.bind(0);
+        glBindVertexArray(block.VAO);
+        glDrawElementsInstanced(GL_TRIANGLES, static_cast<unsigned int>(block.indices.size()), GL_UNSIGNED_INT, 0, (height * width * depth));
+        block.indices.clear();
+        block.vertices.clear();
+        glBindVertexArray(0);
+        textureAtlas.unbind();
     }
 }
 

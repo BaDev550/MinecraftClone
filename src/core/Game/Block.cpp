@@ -8,9 +8,6 @@ void Block::initializeBuffers()
 	updateBuffers();
 }
 
-std::vector<unsigned int> indices;
-std::vector<Vertex> vertices;
-
 void Block::updateBuffers()
 {
 	glBindVertexArray(VAO);
@@ -111,20 +108,7 @@ void Block::setVisibleFaces(bool top, bool bottom, bool left, bool right, bool f
 
 void Block::render(Texture& textureAtlas, Shader& shader)
 {
-	if (bVisible && !indices.empty()) {
-		shader.use();
-
-		glm::mat4 model = glm::mat4(1.0f);
-
-		shader.setMat4("model", model);
-
-		textureAtlas.bind(0);
-		glBindVertexArray(VAO);
-		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
-	}
-	indices.clear();
-	vertices.clear();
+	// Moved to chunk class for instancing
 }
 
 bool Block::isSolid() const
