@@ -15,8 +15,10 @@ public:
 
 	Block& getBlock(int x, int y, int z);
 	void setBlock(int x, int y, int z, BlockType type);
-	
-	void renderChunk(Shader& shader, Texture& textureAtlas, glm::vec3 cameraPos);
+	void addBlock(int x, int y, int z, BlockType type);
+	void removeBlock(int x, int y, int z);
+
+	void renderChunk(Shader& shader, Texture& textureAtlas, glm::vec3 cameraPos, bool outline);
 	bool sendBlockProps(Block& block, int x, int y, int z);
 
 	std::vector<Block> blocks;
@@ -25,6 +27,7 @@ public:
 private:
 	int width, height, depth;
 
+	Shader outline_shader;
 	int blockIndex(int x, int y, int z);
 	bool isFaceVisible(int x, int y, int z);
 };

@@ -5,6 +5,11 @@ float lastX;
 float lastY;
 bool firstClick = true;
 
+double mouseX, mouseY;
+float closestT = std::numeric_limits<float>::max();
+glm::vec3 hitPosition;
+bool hit = false;
+
 void mouse_callback(GLFWwindow* window, double xposIn, double yposIn);
 
 Renderer::~Renderer()
@@ -69,8 +74,25 @@ void Renderer::render()
 	core_shader.setMat4("projection", projection);
 	core_shader.setMat4("view", view);
 
+	raycaster.init(projection, view);
+
 	for (auto& chunk : chunks) {
-		chunk.renderChunk(core_shader, texture_atlas, camera.Position);
+		chunk.renderChunk(core_shader, texture_atlas, camera.Position, hit);
+
+		Ray ray = raycaster.castRay(mouseX, mouseY, window.getFBWidth(), window.getFBWidth());
+		for (const auto& block : chunk.blocks) {
+			glm::vec3 minBounds = block.position;
+			glm::vec3 maxBounds = block.position + glm::vec3(0.5f);
+
+			float t;
+			if (raycaster.intersectAABB(ray, minBounds, maxBounds, t)) {
+				if (t < closestT) {
+					closestT = t;
+					hitPosition = ray.origin + ray.direction * t;
+					hit = true;
+				}
+			}
+		}
 	}
 }
 
@@ -86,6 +108,13 @@ void Renderer::processInput()
 	if (window.getInput().isKeyPressed(GLFW_KEY_D))
 		camera.ProcessKeyboard(RIGHT, deltaTime);
 
+	if (window.getInput().isKeyPressed(GLFW_KEY_M, true)) {
+		firstClick = true;
+		glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	}
+	if (window.getInput().isKeyPressed(GLFW_KEY_M, false, true))
+		glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
 	if (window.getInput().isKeyPressed(GLFW_KEY_LEFT_SHIFT))
 		camera.MovementSpeed = 10;
 	else if (window.getInput().isKeyReleased(GLFW_KEY_LEFT_SHIFT))
@@ -95,6 +124,28 @@ void Renderer::processInput()
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	if (window.getInput().isKeyPressed(GLFW_KEY_F, false, true))
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	if(window.getInput().isMouseButtonPressed(GLFW_MOUSE_BUTTON_2)){
+		if (hit) {
+			glm::ivec3 chunkCoords = glm::floor(hitPosition);
+			std::cout << "x: " << chunkCoords.x <<
+				"\ny: " << chunkCoords.y <<
+				"\nz: " << chunkCoords.z << std::endl;
+			glm::ivec3 correctedCoords{ chunkCoords + 1 };
+			if (chunkCoords.x > 0) correctedCoords.x = chunkCoords.x + 1;
+			if (chunkCoords.y > 0) correctedCoords.y = chunkCoords.y + 1;
+			if (chunkCoords.z > 0) correctedCoords.z = chunkCoords.z + 1;
+
+			chunks[0].addBlock(correctedCoords.x, correctedCoords.y, correctedCoords.z, DIRT);
+		}
+	}
+	if (window.getInput().isMouseButtonPressed(GLFW_MOUSE_BUTTON_1)) {
+		if (hit) {
+			glm::ivec3 chunkCoords = glm::floor(hitPosition);
+
+			chunks[0].removeBlock(chunkCoords.x, chunkCoords.y, chunkCoords.z);
+		}
+	}
 }
 
 void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
@@ -115,6 +166,9 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 
 	lastX = xpos;
 	lastY = ypos;
+
+	mouseX = xpos;
+	mouseY = ypos;
 
 	camera.ProcessMouseMovement(xoffset, yoffset);
 }

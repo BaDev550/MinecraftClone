@@ -3,6 +3,7 @@
 #include <core/Window.h>
 #include <core/Camera.h>
 #include <core/Game/Chunk.h>
+#include <core/Ray.h>
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_opengl3.h>
 #include <imgui/imgui_impl_glfw.h>
@@ -21,8 +22,9 @@ private:
 
 	Shader core_shader;
 	Texture texture_atlas;
+	Raycaster raycaster;
 
-	int viewDistance = 8;
+	int viewDistance = 10;
 
 	std::vector<Chunk> chunks;
 

@@ -104,7 +104,7 @@ void Block::setVisibleFaces(bool top, bool bottom, bool left, bool right, bool f
 	visibleFaces[3] = right;
 	visibleFaces[4] = front;
 	visibleFaces[5] = back;
-	if ((top && bottom && left && right && front && back) == false) { std::cout << "not visible!" << std::endl; bVisible = false; }
+	if ((top && bottom && left && right && front && back) == true) { bVisible = false; }
 
 	updateBuffers();
 }

@@ -66,6 +66,9 @@
     <ClCompile Include="thirdParty\include\Noise\SimplexNoise.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\core\Ray.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\renderer\Renderer.h">
@@ -125,9 +128,13 @@
     <ClInclude Include="thirdParty\include\Noise\SimplexNoise.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\core\Ray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\core_vertex.glsl" />
     <None Include="shaders\core_fragment.glsl" />
+    <None Include="shaders\outline_fragment.glsl" />
   </ItemGroup>
 </Project>
