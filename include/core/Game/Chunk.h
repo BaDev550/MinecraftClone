@@ -16,7 +16,7 @@ public:
 	Chunk() {};
 	void init(int width, int height, int depth);
 
-	Block& getBlock(int x, int y, int z);
+	Block* getBlock(int x, int y, int z);
 	void setBlock(int x, int y, int z, BlockType type);
 	void addBlock(int x, int y, int z, BlockType type, const glm::vec3& cameraPos, const glm::vec3& cameraFront);
 	void removeBlock(int x, int y, int z);

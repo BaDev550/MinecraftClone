@@ -80,13 +80,11 @@ void Renderer::render()
 
 	glfwGetCursorPos(window.getWindow(), &mouseX, &mouseY);
 
-	glDisable(GL_CULL_FACE);
 	chunk.renderChunk(core_shader, texture_atlas, camera.Position, renderDistance);
-	glEnable(GL_CULL_FACE);
 	float closestT = std::numeric_limits<float>::max();
 
 	Ray ray = raycaster.castFromCamera(static_cast<float>(mouseX), static_cast<float>(mouseY), window.getFBWidth(), window.getFBHeight(), camera);
-	float maxDistance = 10000.0f;
+	float maxDistance = 100.0f;
 
 	for (const auto& block : chunk.blocks) {
 		glm::vec3 minBounds = block.second.position;
@@ -206,6 +204,8 @@ void Renderer::drawDebugGUI() {
 		ImGui::SameLine();
 		if (ImGui::Button("Dirt"))
 			bType = DIRT;
+		if (ImGui::Button("Door"))
+			bType = WOOD_DOOR;
 	}
 	ImGui::End();
 }

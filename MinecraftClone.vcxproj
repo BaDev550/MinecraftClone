@@ -141,6 +141,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="FrustumCulling.cpp" />
     <ClCompile Include="include\imgui\imgui.cpp" />
     <ClCompile Include="include\imgui\imgui_demo.cpp" />
     <ClCompile Include="include\imgui\imgui_draw.cpp" />
@@ -161,6 +162,7 @@
     <ClCompile Include="thirdParty\include\Noise\SimplexNoise.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="FrustumCulling.h" />
     <ClInclude Include="include\core\Camera.h" />
     <ClInclude Include="include\core\Game\Chunk.h" />
     <ClInclude Include="include\core\Game\Block.h" />

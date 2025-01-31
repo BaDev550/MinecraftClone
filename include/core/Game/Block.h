@@ -10,14 +10,14 @@
 #include <stdexcept>
 
 enum BlockType {
-    AIR,
-    DIRT,
+	AIR,
+	DIRT,
 	LEAVES,
 	OAK_WOOD,
 	PLANK,
-    GRASS,
-    STONE,
-    WATER,
+	GRASS,
+	STONE,
+	WATER,
 	LAVA,
 	OBSIDIAN,
 	SAND,
@@ -35,6 +35,7 @@ enum BlockType {
 	GLOWSTONE,
 	ENDSTONE,
 	BEDROCK,
+	WOOD_DOOR,
 };
 
 struct Vertex {
@@ -71,6 +72,7 @@ public:
 	bool isLiquid() const;
 
 	glm::vec3 position;
+	glm::vec3 scale = glm::vec3(1.0f);
 	glm::quat rotation;
 	std::vector<glm::vec2> texCoords;
 	bool bVisible = true;

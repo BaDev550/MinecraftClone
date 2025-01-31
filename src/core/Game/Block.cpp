@@ -24,28 +24,28 @@ void Block::updateBuffers()
 		glm::vec3 positions[4];
 		switch (face) {
 		case 0: // Top face
+			positions[0] = glm::vec3(position.x + 1.0f, position.y + 1.0f, position.z);
 			positions[1] = glm::vec3(position.x, position.y + 1.0f, position.z);
 			positions[2] = glm::vec3(position.x, position.y + 1.0f, position.z + 1.0f);
 			positions[3] = glm::vec3(position.x + 1.0f, position.y + 1.0f, position.z + 1.0f);
-			positions[0] = glm::vec3(position.x + 1.0f, position.y + 1.0f, position.z);
 			break;
 		case 1: // Bottom face
+			positions[0] = glm::vec3(position.x, position.y, position.z);
 			positions[1] = glm::vec3(position.x + 1.0f, position.y, position.z);
 			positions[2] = glm::vec3(position.x + 1.0f, position.y, position.z + 1.0f);
 			positions[3] = glm::vec3(position.x, position.y, position.z + 1.0f);
-			positions[0] = glm::vec3(position.x, position.y, position.z);
 			break;
 		case 2: // Left face
+			positions[0] = glm::vec3(position.x, position.y, position.z);
 			positions[1] = glm::vec3(position.x, position.y + 1.0f, position.z);
 			positions[2] = glm::vec3(position.x, position.y + 1.0f, position.z + 1.0f);
 			positions[3] = glm::vec3(position.x, position.y, position.z + 1.0f);
-			positions[0] = glm::vec3(position.x, position.y, position.z);
 			break;
 		case 3: // Right face
+			positions[0] = glm::vec3(position.x + 1.0f, position.y, position.z);
 			positions[1] = glm::vec3(position.x + 1.0f, position.y + 1.0f, position.z);
 			positions[2] = glm::vec3(position.x + 1.0f, position.y + 1.0f, position.z + 1.0f);
 			positions[3] = glm::vec3(position.x + 1.0f, position.y, position.z + 1.0f);
-			positions[0] = glm::vec3(position.x + 1.0f, position.y, position.z);
 			break;
 		case 4: // Front face
 			positions[0] = glm::vec3(position.x, position.y, position.z + 1.0f);
@@ -115,11 +115,12 @@ void Block::render(Texture& textureAtlas, Shader& shader)
 		shader.use();
 
 		glm::mat4 model = glm::mat4(1.0f);
+
 		shader.setMat4("model", model);
 
 		textureAtlas.bind(0);
 		glBindVertexArray(VAO);
-		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 	}
 	indices.clear();
@@ -220,6 +221,8 @@ std::vector<glm::vec2> Block::getUVCoords(int face)
 			glm::vec2(0.12500f, 0.81250f),
 			glm::vec2(0.12500f, 0.75000f),
 		};
+	case WOOD_DOOR:
+
 	case BEDROCK:
 		return {
 			glm::vec2(0.00000f, 0.87500f),
