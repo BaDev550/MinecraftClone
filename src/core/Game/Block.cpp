@@ -163,6 +163,14 @@ std::vector<glm::vec2> Block::getUVCoords(int face)
 				glm::vec2(0.09375f, 0.93750f),
 			};
 		}
+		if (face == 1) {
+			return {
+				glm::vec2(0.56250f, 0.87500f),
+				glm::vec2(0.56250f, 0.93750f),
+				glm::vec2(0.59375f, 0.93750f),
+				glm::vec2(0.59375f, 0.87500f),
+			};
+		}
 		return {
 			glm::vec2(0.31250f, 0.93750f),
 			glm::vec2(0.31250f, 1.00000f),
@@ -189,6 +197,13 @@ std::vector<glm::vec2> Block::getUVCoords(int face)
 			glm::vec2(0.00f, 0.94f),
 			glm::vec2(0.06f, 0.94f),
 			glm::vec2(0.06f, 0.88f)
+		};
+	case BEDROCK:
+		return {
+			glm::vec2(0.00000f, 0.87500f),
+			glm::vec2(0.00000f, 0.93750f),
+			glm::vec2(0.03125f, 0.93750f),
+			glm::vec2(0.03125f, 0.87500f),
 		};
 	default:
 		return {

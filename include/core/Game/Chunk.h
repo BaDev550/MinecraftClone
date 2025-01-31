@@ -2,6 +2,7 @@
 
 #include "Block.h"
 #include <vector>
+#include <unordered_map>
 #include <Noise/SimplexNoise.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -9,7 +10,7 @@
 class Chunk
 {
 public:
-	const int MAX_HEIGHT = 256;
+	const int MAX_HEIGHT = 64;
 	Chunk(int width, int height, int depth) { init(width, height, depth); }
 	void init(int width, int height, int depth);
 
@@ -20,8 +21,9 @@ public:
 
 	void renderChunk(Shader& shader, Texture& textureAtlas, glm::vec3 cameraPos, bool outline);
 	bool sendBlockProps(Block& block, int x, int y, int z);
+	void generateTrain();
 
-	std::vector<Block> blocks;
+	std::unordered_map<int, Block> blocks;
 
 	double heightMap;
 private:

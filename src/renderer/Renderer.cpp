@@ -6,7 +6,6 @@ float lastY;
 bool firstClick = true;
 
 double mouseX, mouseY;
-float closestT = std::numeric_limits<float>::max();
 glm::vec3 hitPosition;
 bool hit = false;
 
@@ -76,17 +75,22 @@ void Renderer::render()
 
 	raycaster.init(projection, view);
 
+	glfwGetCursorPos(window.getWindow(), &mouseX, &mouseY);
+
 	for (auto& chunk : chunks) {
 		chunk.renderChunk(core_shader, texture_atlas, camera.Position, hit);
+		float closestT = std::numeric_limits<float>::max();
 
-		Ray ray = raycaster.castRay(mouseX, mouseY, window.getFBWidth(), window.getFBWidth());
+		Ray ray = raycaster.castFromCamera(static_cast<float>(mouseX), static_cast<float>(mouseY), window.getFBWidth(), window.getFBHeight(), camera);
+		float maxDistance = 10000.0f;
+
 		for (const auto& block : chunk.blocks) {
-			glm::vec3 minBounds = block.position;
-			glm::vec3 maxBounds = block.position + glm::vec3(0.5f);
+			glm::vec3 minBounds = block.second.position;
+			glm::vec3 maxBounds = block.second.position + glm::vec3(1.0f);
 
 			float t;
 			if (raycaster.intersectAABB(ray, minBounds, maxBounds, t)) {
-				if (t < closestT) {
+				if (t < closestT && t < maxDistance) {
 					closestT = t;
 					hitPosition = ray.origin + ray.direction * t;
 					hit = true;
@@ -128,15 +132,8 @@ void Renderer::processInput()
 	if(window.getInput().isMouseButtonPressed(GLFW_MOUSE_BUTTON_2)){
 		if (hit) {
 			glm::ivec3 chunkCoords = glm::floor(hitPosition);
-			std::cout << "x: " << chunkCoords.x <<
-				"\ny: " << chunkCoords.y <<
-				"\nz: " << chunkCoords.z << std::endl;
-			glm::ivec3 correctedCoords{ chunkCoords + 1 };
-			if (chunkCoords.x > 0) correctedCoords.x = chunkCoords.x + 1;
-			if (chunkCoords.y > 0) correctedCoords.y = chunkCoords.y + 1;
-			if (chunkCoords.z > 0) correctedCoords.z = chunkCoords.z + 1;
 
-			chunks[0].addBlock(correctedCoords.x, correctedCoords.y, correctedCoords.z, DIRT);
+			chunks[0].addBlock(chunkCoords.x, chunkCoords.y, chunkCoords.z, DIRT);
 		}
 	}
 	if (window.getInput().isMouseButtonPressed(GLFW_MOUSE_BUTTON_1)) {
@@ -167,9 +164,6 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 	lastX = xpos;
 	lastY = ypos;
 
-	mouseX = xpos;
-	mouseY = ypos;
-
 	camera.ProcessMouseMovement(xoffset, yoffset);
 }
 
@@ -188,7 +182,16 @@ void Renderer::drawDebugGUI() {
 		}
 		ImGui::Text("FPS: %d", FPS);
 		ImGui::Text("Chunks rendered size: %d", chunks.size());
-		ImGui::Text("Blocks rendered size: %d", chunks[0].blocks.size());
+
+		int renderedBlocks{};
+		for (int i = 0; i < chunks[0].blocks.size(); i++) {
+			if (chunks[0].blocks[i].bVisible || chunks[0].blocks[i].getBlockType() != AIR) {
+				renderedBlocks = i;
+			}
+		}
+		ImGui::Text("Blocks map size: %d", chunks[0].blocks.size());
+		ImGui::Text("Blocks rendered size: %d", renderedBlocks);
+
 	}
 	ImGui::End();
 }

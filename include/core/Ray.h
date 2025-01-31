@@ -4,6 +4,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <vector>
 #include <limits>
+#include <core/Camera.h>
 
 class Ray {
 public:
@@ -25,6 +26,7 @@ public:
         this->viewMatrix = viewMatrix;
     }
     Ray castRay(float mouseX, float mouseY, int screenWidth, int screenHeight);
+    Ray castFromCamera(float mouseX, float mouseY, int screenWidth, int screenHeight, Camera& camera);
     bool intersectAABB(const Ray& ray, const glm::vec3& minBounds, const glm::vec3& maxBounds, float& t);
 
 private:

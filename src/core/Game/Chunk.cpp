@@ -10,78 +10,41 @@ void Chunk::init(int width, int height, int depth)
         this->width = width;
         this->height = height;
         this->depth = depth;
-        this->blocks.resize(height > MAX_HEIGHT ? MAX_HEIGHT : height * width * depth, Block(DIRT));
-        for (auto& block : blocks) {
-            block.init();
-        }
-
-        SimplexNoise noise;
-        noise.setSeed(sizeof(double) * 10000 / rand());
-
-        for (int x = 0; x < width; ++x) {
-            for (int y = 0; y < height; ++y) {
-                //double xPos = double(x) / double(width) - 0.5;
-                //double yPos = double(y) / double(height) - 0.5;
-
-                //heightMap = abs(noise.signedFBM(xPos, yPos, 2, 1.5f, 0.4f) * 10);
-                //std::cout << heightMap << std::endl;
-                for (int z = 0; z < depth; ++z) {
-                    int index = blockIndex(x, y, z);
-                    blocks[index].setPos(glm::vec3(x, y, z));
-
-                    if (y < height / 1.5f) {
-                        blocks[index].setType(STONE);
-                    }
-                    if (y == height - 1) {
-                        blocks[index].setType(GRASS);
-                    }
-
-                    for (int maxY = abs(height - MAX_HEIGHT); maxY < MAX_HEIGHT; maxY++) 
-                    {
-                        //addBlock(x, maxY, z, AIR);
-                    }
-                }
-            }
-        }
-
+        generateTrain();
         outline_shader.setupShader("shaders/core_vertex.glsl", "shaders/outline_fragment.glsl");
     }
 }
 
 Block& Chunk::getBlock(int x, int y, int z)
 {
-    if (x < 0 || x >= width ||
-        y < 0 || y >= height ||
-        z < 0 || z >= depth) {
+    int index = blockIndex(x, y, z);
+    if (blocks.find(index) == blocks.end()) {
         throw std::out_of_range("Block coordinates are out of range!");
     }
-    return blocks[blockIndex(x, y, z)];
+    return blocks[index];
 }
 
 void Chunk::setBlock(int x, int y, int z, BlockType type)
 {
-    if (x < 0 || x >= width ||
-        y < 0 || y >= height ||
-        z < 0 || z >= depth) {
-        throw std::out_of_range("Block coordinates are out of range!");
-    }
-    blocks[blockIndex(x, y, z)].setType(type);
+    int index = blockIndex(x, y, z);
+    blocks[index] = Block(type, glm::vec3(x, y, z));
 }
 
 void Chunk::addBlock(int x, int y, int z, BlockType type)
 {
-    blocks.push_back(Block(type, glm::vec3(x, y, z)));
-    blocks[blocks.size() - 1].init();
+    if (y < 0 || y >= MAX_HEIGHT) return;
+
+    int index = blockIndex(x, y, z);
+    blocks[index] = Block(type, glm::vec3(x, y, z));
+    blocks[index].init();
 }
 
 void Chunk::removeBlock(int x, int y, int z)
 {
-    if (x < 0 || x >= width ||
-        y < 0 || y >= height ||
-        z < 0 || z >= depth) {
-        throw std::out_of_range("Block coordinates are out of range!");
+    int index = blockIndex(x, y, z);
+    if (blocks.find(index) != blocks.end()) {
+        blocks[index].setType(AIR);
     }
-    blocks[blockIndex(x, y, z)].setType(AIR);
 }
 
 bool Chunk::isFaceVisible(int x, int y, int z) {
@@ -113,28 +76,43 @@ bool Chunk::sendBlockProps(Block& block, int x, int y, int z) {
     return true;
 }
 
+void Chunk::generateTrain()
+{
+    for (int x = 0; x < width; ++x) {
+        for (int z = 0; z < depth; ++z) {
+            for (int y = 0; y < MAX_HEIGHT; ++y) {
+                BlockType type = (y == 0) ? BEDROCK : (y == height - 1) ? GRASS : ((y > height / 2) ? DIRT : STONE);
+                if (y < height) {
+                    addBlock(x, y, z, type);
+                }
+                else {
+                    //addBlock(x, y, z, AIR);
+                }
+            }
+        }
+    }
+}
+
 void Chunk::renderChunk(Shader& shader, Texture& textureAtlas, glm::vec3 cameraPos, bool outline)
 {
-    for (int worldSize = 0; worldSize < blocks.size(); worldSize++) {
-        Block& block = blocks[worldSize];
+    for (auto& pair : blocks) {
+        Block& block = pair.second;
         float distance = glm::distance(block.position, cameraPos);
-        if (distance > 30.0f) continue;
-        //{ //removeBlock(block.position.x, block.position.y, block.position.z);  }
+
+        if (distance > 30.0f)
+        {
+            continue;
+        }
         
         if (!sendBlockProps(block, block.position.x, block.position.y, block.position.z)) {
             removeBlock(block.position.x, block.position.y, block.position.z);
             continue;
         }
-        if (outline) {
-            block.render(textureAtlas, shader);
-        }
-        else {
-            block.render(textureAtlas, shader);
-        }
+        block.render(textureAtlas, shader);
     }
 }
 
 int Chunk::blockIndex(int x, int y, int z)
 {
-    return x + (y * width) + (z * width * height);
+    return x + (y * width) + (z * width * MAX_HEIGHT);
 }
