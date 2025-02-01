@@ -3,7 +3,7 @@
 
 int main() {
 	Renderer renderer;
-	renderer.start(800, 800, "OpenGL Window");
+	renderer.start(1000, 1000, "OpenGL Window");
 	renderer.update();
 	return 0;
 }

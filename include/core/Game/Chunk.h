@@ -7,6 +7,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <future>
 
 #define CHUNK_SIZE 10
 #define MAX_HEIGHT 64
@@ -25,11 +26,12 @@ public:
 	void setBlock(int x, int y, int z, BlockType type);
 	void addBlock(int x, int y, int z, BlockType type, const glm::vec3& cameraPos, const glm::vec3& cameraFront);
 	void removeBlock(int x, int y, int z);
+	void updateInstanceTransforms(const std::unordered_map<int, Block>& blocks);
 
 	void renderChunk(Shader& shader, Texture& textureAtlas, glm::vec3 cameraPos, float renderDistance);
 	bool sendBlockProps(Block& block, glm::vec3& position);
 	void updateVisibility(FrustumCulling& frustum);
-	void generateTrain(int chunkX, int chunkZ);
+	void generateTrain(int chunkX, int chunkZ, int seed);
 
 	std::unordered_map<int, Block> blocks;
 private:

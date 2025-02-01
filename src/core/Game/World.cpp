@@ -1,13 +1,23 @@
 #include <core/Game/World.h>
 #include <glm/gtc/noise.hpp> 
+#include <future>
 
 void World::generateWorld(int chunkX, int chunkZ)
 {
+	if (chunkX < 8 || chunkZ < 8) {
+		std::cout << "WORLD GEN FAILED:min chunk size is 8" << std::endl;
+		return;
+	}
+
 	w_ChunksX = chunkX;
 	w_ChunksZ = chunkZ;
 	generateTrain();
-}
 
+	if (seed == 0) {
+		std::srand(std::time(nullptr));
+		seed = std::rand();
+	}
+}
 
 void World::generateTrain()
 {
@@ -20,7 +30,7 @@ void World::generateTrain()
 
 			Chunk newChunk(pos);
 			w_chunks[x][z] = newChunk;
-			w_chunks[x][z].generateTrain(x, z);
+			w_chunks[x][z].generateTrain(x, z, seed);
 		}
 	}
 }
@@ -36,16 +46,18 @@ void World::updateChunksVisibility(FrustumCulling& frustum)
 
 Chunk* World::getCurrentChunk(const glm::vec3& playerPos)
 {
-	int chunkX = static_cast<int>(floor(playerPos.x / CHUNK_SIZE));
-	int chunkZ = static_cast<int>(floor(playerPos.z / CHUNK_SIZE));
+	if (w_chunks.empty()) return NULL;
 
-	if (chunkX < 0 || chunkX >= w_chunks.size())
-		return nullptr;
-	if (chunkZ < 0 || chunkZ >= w_chunks[chunkX].size())
-		return nullptr;
+	int chunkX = static_cast<int>(std::floor(playerPos.x / CHUNK_SIZE));
+	int chunkZ = static_cast<int>(std::floor(playerPos.z / CHUNK_SIZE));
+
+	if (chunkX < 0 || chunkZ < 0) return NULL;
+	if (chunkX >= static_cast<int>(w_chunks.size())) return NULL;
+	if (w_chunks[chunkX].empty() || chunkZ >= static_cast<int>(w_chunks[chunkX].size())) return NULL;
 
 	return &w_chunks[chunkX][chunkZ];
 }
+
 
 void World::renderNearChunks(const glm::vec3& playerPos, Texture& textureAtlas, Shader& shader, int viewDistance)
 {

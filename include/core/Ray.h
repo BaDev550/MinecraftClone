@@ -28,6 +28,7 @@ public:
     Ray castRay(float mouseX, float mouseY, int screenWidth, int screenHeight);
     Ray castFromCamera(float mouseX, float mouseY, int screenWidth, int screenHeight, Camera& camera);
     bool intersectAABB(const Ray& ray, const glm::vec3& minBounds, const glm::vec3& maxBounds, float& t);
+    bool intersectRayAABB(const Ray& ray, const glm::vec3& boxMin, const glm::vec3& boxMax, float& tNear, float& tFar);
 
 private:
     glm::mat4 projectionMatrix;

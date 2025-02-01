@@ -5,6 +5,7 @@
 #include <glm/gtc/quaternion.hpp>
 #include <renderer/Texture.h>
 #include <renderer/Shader.h>
+
 #include <vector>
 #include <iostream>
 #include <stdexcept>
@@ -73,6 +74,7 @@ public:
 	void render(Texture& textureAtlas, Shader& shader);
 	void setPos(glm::vec3 pos) { position = pos; }
 	void setRot(glm::quat rot) { rotation = rot; }
+	bool isBlockingRay(const glm::vec3& rayOrigin, const glm::vec3& rayDirection);
 
 	bool isSolid() const;
 	bool isLiquid() const;

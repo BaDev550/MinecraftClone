@@ -27,7 +27,7 @@ void Renderer::start(unsigned int width, unsigned int height, const char* title)
 	glfwSetCursorPosCallback(window.getWindow(), mouse_callback);
 
 	core_shader.setupShader("shaders/core_vertex.glsl", "shaders/core_fragment.glsl");
-	texture_atlas.setTexture("textures/texture_atlas.png");
+	texture_atlas.setTexture("textures/stay_true.png");
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -37,7 +37,7 @@ void Renderer::start(unsigned int width, unsigned int height, const char* title)
 	ImGui_ImplGlfw_InitForOpenGL(window.getWindow(), true);
 	ImGui_ImplOpenGL3_Init("#version 130");
 
-	world.generateWorld(8, 8);
+	world.generateWorld(chunkSize, chunkSize);
 }
 
 void Renderer::update()
@@ -55,7 +55,9 @@ void Renderer::update()
 		wfb_Width = window.getFBWidth();
 		wfb_Height = window.getFBHeight();
 
-		render();
+		if (!world.w_chunks.empty()) {
+			render();
+		}
 		drawDebugGUI();
 
 		ImGui::Render();
@@ -71,7 +73,7 @@ void Renderer::render()
 	core_shader.use();
 	glDepthMask(GL_TRUE);
 
-	glm::mat4 projection = glm::perspective(glm::radians(45.f), (float)wfb_Width / (float)wfb_Height, 0.1f, 100.0f);
+	glm::mat4 projection = glm::perspective(glm::radians(90.f), (float)wfb_Width / (float)wfb_Height, 0.1f, 100.0f);
 	glm::mat4 view = camera.GetViewMatrix();
 	glm::mat4 vp = projection * view;
 
@@ -88,6 +90,9 @@ void Renderer::render()
 	Ray ray = raycaster.castFromCamera(static_cast<float>(mouseX), static_cast<float>(mouseY), window.getFBWidth(), window.getFBHeight(), camera);
 	float maxDistance = 100.0f;
 
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_FRONT);
+	//glFrontFace(GL_CCW);
 	world.renderNearChunks(camera.Position, texture_atlas, core_shader, viewDistance);
 
 	for (const auto& block : world.current_chunk->blocks) {
@@ -135,19 +140,21 @@ void Renderer::processInput()
 	if (window.getInput().isKeyPressed(GLFW_KEY_F, false, true))
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-	if(window.getInput().isMouseButtonClicked(GLFW_MOUSE_BUTTON_RIGHT)){
-		if (hit) {
-			glm::ivec3 chunkCoords = glm::floor(hitPosition);
+	if (!world.w_chunks.empty()) {
+		if (window.getInput().isMouseButtonClicked(GLFW_MOUSE_BUTTON_RIGHT)) {
+			if (hit) {
+				glm::ivec3 chunkCoords = glm::floor(hitPosition);
 
-			world.current_chunk->addBlock(chunkCoords.x, chunkCoords.y, chunkCoords.z, bType, camera.Position, camera.Front);
+				world.current_chunk->addBlock(chunkCoords.x, chunkCoords.y, chunkCoords.z, bType, camera.Position, camera.Front);
+			}
 		}
-	}
 
-	if (window.getInput().isMouseButtonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
-		if (hit) {
-			glm::ivec3 chunkCoords = glm::floor(hitPosition);
+		if (window.getInput().isMouseButtonClicked(GLFW_MOUSE_BUTTON_LEFT)) {
+			if (hit) {
+				glm::ivec3 chunkCoords = glm::floor(hitPosition);
 
-			world.current_chunk->removeBlock(chunkCoords.x, chunkCoords.y, chunkCoords.z);
+				world.current_chunk->removeBlock(chunkCoords.x, chunkCoords.y, chunkCoords.z);
+			}
 		}
 	}
 }
@@ -178,8 +185,8 @@ int frameCounter;
 int FPS = 0;
 
 void Renderer::drawDebugGUI() {
-	if (ImGui::Begin("Debugger")) {
-		ImGui::SetWindowSize(ImVec2(200, 200));
+	if (ImGui::Begin("Debugger") && !world.w_chunks.empty()) {
+		ImGui::SetWindowSize(ImVec2(300, 400));
 		ImGui::SetWindowPos(ImVec2(1.5f, ((window.getFBHeight() * -1.0f) / 200.f) + 1.5f ));
 
 		frameCounter++;
@@ -198,6 +205,7 @@ void Renderer::drawDebugGUI() {
 		}
 		ImGui::Text("Active chunks: %d", activeChunks);
 		ImGui::Text("Blocks rendered: %d", (int)world.current_chunk->blocks.size());
+		if (ImGui::InputInt("View Distance", &viewDistance));
 
 		if (ImGui::Button("Oak Wood"))
 			bType = OAK_WOOD;
@@ -209,6 +217,23 @@ void Renderer::drawDebugGUI() {
 		ImGui::SameLine();
 		if (ImGui::Button("Dirt"))
 			bType = DIRT;
+
+		if (ImGui::Button("Clear World")) {
+			world.w_chunks.clear();
+		}
+
+		ImGui::Text("SHIFT+M To cursor mode");
+		ImGui::Text("CTRL+M To game mode");
+
+		ImGui::Text("SHIFT+F To wireframe mode");
+		ImGui::Text("CTRL+F To fill mode");
+	}
+	else if (world.w_chunks.empty()) {
+		if (ImGui::InputInt("Chunk size", &chunkSize));
+		if (ImGui::InputInt("Seed", &world.seed));
+		if (ImGui::Button("Generate World")) {
+			world.generateWorld(chunkSize, chunkSize);
+		}
 	}
 	ImGui::End();
 }

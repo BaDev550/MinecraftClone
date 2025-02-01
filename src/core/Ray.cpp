@@ -33,6 +33,9 @@ Ray Raycaster::castFromCamera(float mouseX, float mouseY, int screenWidth, int s
 bool Raycaster::intersectAABB(const Ray& ray, const glm::vec3& minBounds, const glm::vec3& maxBounds, float& t)
 {
     glm::vec3 invDir = 1.0f / ray.direction;
+    if (glm::any(glm::isinf(invDir))) {
+        return false;
+    }
 
     glm::vec3 t1 = (minBounds - ray.origin) * invDir;
     glm::vec3 t2 = (maxBounds - ray.origin) * invDir;
@@ -46,5 +49,5 @@ bool Raycaster::intersectAABB(const Ray& ray, const glm::vec3& minBounds, const 
     if (tFar < 0 || tNear > tFar) return false;
 
     t = (tNear > 0) ? tNear : tFar;
-    return t < 1000.0f;
+    return t < 100.0f;
 }

@@ -59,9 +59,9 @@ void Block::updateBuffers()
 		}
 
         vertices.push_back({ positions[0], texCoords[0] });
-        vertices.push_back({ positions[1], texCoords[1] });
-        vertices.push_back({ positions[2], texCoords[2] });
         vertices.push_back({ positions[3], texCoords[3] });
+        vertices.push_back({ positions[2], texCoords[2] });
+        vertices.push_back({ positions[1], texCoords[1] });
 
         indices.insert(indices.end(), {
             startIdx, startIdx + 1, startIdx + 2,
@@ -102,6 +102,36 @@ void Block::setVisibleFaces(bool top, bool bottom, bool left, bool right, bool f
 	visibleFaces[5] = back;
 	if ((top && bottom && left && right && front && back) == true) { bVisible = false; }
 	updateBuffers();
+}
+
+bool intersectAABB(const glm::vec3& rayOrigin, const glm::vec3& rayDirection,
+	const glm::vec3& minBound, const glm::vec3& maxBound,
+	float& tmin, float& tmax)
+{
+	glm::vec3 invDir = 1.0f / rayDirection;
+	glm::vec3 t1 = (minBound - rayOrigin) * invDir;
+	glm::vec3 t2 = (maxBound - rayOrigin) * invDir;
+
+	glm::vec3 tMin = glm::min(t1, t2);
+	glm::vec3 tMax = glm::max(t1, t2);
+
+	tmin = glm::max(glm::max(tMin.x, tMin.y), tMin.z);
+	tmax = glm::min(glm::min(tMax.x, tMax.y), tMax.z);
+
+	return tmax >= glm::max(0.0f, tmin);
+}
+
+
+bool Block::isBlockingRay(const glm::vec3& rayOrigin, const glm::vec3& rayDirection)
+{
+	glm::vec3 minBound = position;
+	glm::vec3 maxBound = position + glm::vec3(1.0f, 1.0f, 1.0f);
+
+	float tmin, tmax, tymin, tymax, tzmin, tzmax;
+	if (!intersectAABB(rayOrigin, rayDirection, minBound, maxBound, tmin, tmax))
+		return false;
+
+	return true;
 }
 
 void Block::render(Texture& textureAtlas, Shader& shader)

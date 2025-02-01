@@ -14,6 +14,7 @@ public:
 
 	int w_ChunksX, w_ChunksZ;
 	int renderDistance = 35;
+	int seed;
 
 	World() {}
 

@@ -25,7 +25,8 @@ private:
 	Texture texture_atlas;
 	Raycaster raycaster;
 
-	int viewDistance = 8;
+	int chunkSize = 8;
+	int viewDistance = 30;
 
 	FrustumCulling frustum;
 	World world;
