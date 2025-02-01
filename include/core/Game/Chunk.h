@@ -3,18 +3,23 @@
 #include "Block.h"
 #include <vector>
 #include <unordered_map>
-#include <Noise/SimplexNoise.hpp>
+#include <core/Optimization/FrustumCulling.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#define CHUNK_SIZE 10
+#define MAX_HEIGHT 64
+
 class Chunk
 {
 public:
-	const int MAX_HEIGHT = 64;
-	Chunk(int width, int height, int depth) { init(width, height, depth); }
+	glm::vec3 position = glm::vec3(0.0f);
+	bool bVisibleOnScreen = true;
+
+	Chunk(glm::vec3& pos) : position(pos) { }
 	Chunk() {};
-	void init(int width, int height, int depth);
+	void init();
 
 	Block* getBlock(int x, int y, int z);
 	void setBlock(int x, int y, int z, BlockType type);
@@ -23,16 +28,13 @@ public:
 
 	void renderChunk(Shader& shader, Texture& textureAtlas, glm::vec3 cameraPos, float renderDistance);
 	bool sendBlockProps(Block& block, glm::vec3& position);
-	void generateTrain();
+	void updateVisibility(FrustumCulling& frustum);
+	void generateTrain(int chunkX, int chunkZ);
 
 	std::unordered_map<int, Block> blocks;
-
-	double heightMap;
 private:
 	unsigned int instance_buffer;
-	int width, height, depth;
 
-	Shader outline_shader;
 	int blockIndex(int x, int y, int z);
 	bool isFaceVisible(int x, int y, int z);
 };

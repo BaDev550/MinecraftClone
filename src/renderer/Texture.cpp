@@ -34,6 +34,27 @@ void Texture::setTexture(const std::string& path)
     }
 }
 
+void Texture::loadHeightMap(const std::string& path, int& height, int& width)
+{
+    stbi_set_flip_vertically_on_load(true);
+    heightMap_data = stbi_load(path.c_str(), &this->width, &this->height, &channels, 0);
+}
+
+void Texture::getHeightMapHeight(int x, int y, int& updateHeight)
+{
+    float yScale = 64.0f / 256.0f, yShift = 16.0f;
+    for (int i = 0; i < y; i++)
+    {
+        for (int j = 0; j < x; j++) {
+            unsigned char* texel = heightMap_data + (j + width * i) * channels;
+            unsigned char yCoord = texel[0];
+
+            std::cout << round((int)yCoord * yScale - yShift) << std::endl;
+            updateHeight = round((int)yCoord * yScale - yShift);
+        }
+    }
+}
+
 void Texture::bind(unsigned int unit) const
 {
 	glActiveTexture(GL_TEXTURE0 + unit);

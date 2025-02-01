@@ -141,7 +141,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="FrustumCulling.cpp" />
+    <ClCompile Include="src\core\Optimization\FrustumCulling.cpp" />
     <ClCompile Include="include\imgui\imgui.cpp" />
     <ClCompile Include="include\imgui\imgui_demo.cpp" />
     <ClCompile Include="include\imgui\imgui_draw.cpp" />
@@ -160,9 +160,10 @@
     <ClCompile Include="src\core\Window.cpp" />
     <ClCompile Include="src\renderer\Texture.cpp" />
     <ClCompile Include="thirdParty\include\Noise\SimplexNoise.cpp" />
+    <ClCompile Include="src\core\Game\World.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="FrustumCulling.h" />
+    <ClInclude Include="include\core\Optimization\FrustumCulling.h" />
     <ClInclude Include="include\core\Camera.h" />
     <ClInclude Include="include\core\Game\Chunk.h" />
     <ClInclude Include="include\core\Game\Block.h" />
@@ -183,6 +184,7 @@
     <ClInclude Include="include\renderer\Shader.h" />
     <ClInclude Include="include\core\Ray.h" />
     <ClInclude Include="thirdParty\include\Noise\SimplexNoise.hpp" />
+    <ClInclude Include="include\core\Game\World.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\core_fragment.glsl" />

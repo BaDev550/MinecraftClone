@@ -68,7 +68,6 @@ void Block::updateBuffers()
             startIdx + 2, startIdx + 3, startIdx
         });
 	}
-
 	if (vertices.empty()) return;
 	if (indices.empty()) return;
 
@@ -102,7 +101,6 @@ void Block::setVisibleFaces(bool top, bool bottom, bool left, bool right, bool f
 	visibleFaces[4] = front;
 	visibleFaces[5] = back;
 	if ((top && bottom && left && right && front && back) == true) { bVisible = false; }
-
 	updateBuffers();
 }
 
@@ -205,14 +203,19 @@ std::vector<glm::vec2> Block::getUVCoords(int face)
 			glm::vec2(0.12500f, 0.81250f),
 			glm::vec2(0.12500f, 0.75000f),
 		};
-	case WOOD_DOOR:
-
 	case BEDROCK:
 		return {
 			glm::vec2(0.00000f, 0.87500f),
 			glm::vec2(0.00000f, 0.93750f),
 			glm::vec2(0.03125f, 0.93750f),
 			glm::vec2(0.03125f, 0.87500f),
+		};
+	case WATER:
+		return {
+			glm::vec2(0.40625f, 0.25000f),
+			glm::vec2(0.40625f, 0.31250f),
+			glm::vec2(0.43750f, 0.31250f),
+			glm::vec2(0.43750f, 0.25000f),
 		};
 	default:
 		return {

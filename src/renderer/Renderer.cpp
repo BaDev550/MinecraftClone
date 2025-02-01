@@ -1,13 +1,14 @@
 #include <renderer/Renderer.h>
 
-Camera camera;
 float lastX;
 float lastY;
 bool firstClick = true;
+bool hit = false;
 
 double mouseX, mouseY;
 glm::vec3 hitPosition;
-bool hit = false;
+
+Camera camera;
 BlockType bType = DIRT;
 
 void mouse_callback(GLFWwindow* window, double xposIn, double yposIn);
@@ -36,7 +37,7 @@ void Renderer::start(unsigned int width, unsigned int height, const char* title)
 	ImGui_ImplGlfw_InitForOpenGL(window.getWindow(), true);
 	ImGui_ImplOpenGL3_Init("#version 130");
 
-	chunk.init(viewDistance, viewDistance, viewDistance);
+	world.generateWorld(8, 8);
 }
 
 void Renderer::update()
@@ -54,8 +55,8 @@ void Renderer::update()
 		wfb_Width = window.getFBWidth();
 		wfb_Height = window.getFBHeight();
 
-		drawDebugGUI();
 		render();
+		drawDebugGUI();
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -72,25 +73,24 @@ void Renderer::render()
 
 	glm::mat4 projection = glm::perspective(glm::radians(45.f), (float)wfb_Width / (float)wfb_Height, 0.1f, 100.0f);
 	glm::mat4 view = camera.GetViewMatrix();
+	glm::mat4 vp = projection * view;
+
+	frustum.updateFrustumPlanes(vp);
+	world.updateChunksVisibility(frustum);
 
 	core_shader.setMat4("projection", projection);
 	core_shader.setMat4("view", view);
 	core_shader.setVec3("cameraPos", camera.Position);
-	core_shader.setInt("fogStart", 50.0f);
-	core_shader.setInt("fogEnd", 200.0f);
-	core_shader.setVec3("fogColor", glm::vec3(0.5f, 0.5f, 0.5f));
 
 	raycaster.init(projection, view);
-
 	glfwGetCursorPos(window.getWindow(), &mouseX, &mouseY);
-
-	chunk.renderChunk(core_shader, texture_atlas, camera.Position, renderDistance);
 	float closestT = std::numeric_limits<float>::max();
-
 	Ray ray = raycaster.castFromCamera(static_cast<float>(mouseX), static_cast<float>(mouseY), window.getFBWidth(), window.getFBHeight(), camera);
 	float maxDistance = 100.0f;
 
-	for (const auto& block : chunk.blocks) {
+	world.renderNearChunks(camera.Position, texture_atlas, core_shader, viewDistance);
+
+	for (const auto& block : world.current_chunk->blocks) {
 		glm::vec3 minBounds = block.second.position;
 		glm::vec3 maxBounds = block.second.position + glm::vec3(1.0f);
 
@@ -135,11 +135,11 @@ void Renderer::processInput()
 	if (window.getInput().isKeyPressed(GLFW_KEY_F, false, true))
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-	if(window.getInput().isMouseButtonPressed(GLFW_MOUSE_BUTTON_RIGHT)){
+	if(window.getInput().isMouseButtonClicked(GLFW_MOUSE_BUTTON_RIGHT)){
 		if (hit) {
 			glm::ivec3 chunkCoords = glm::floor(hitPosition);
 
-			chunk.addBlock(chunkCoords.x, chunkCoords.y, chunkCoords.z, bType, camera.Position, camera.Front);
+			world.current_chunk->addBlock(chunkCoords.x, chunkCoords.y, chunkCoords.z, bType, camera.Position, camera.Front);
 		}
 	}
 
@@ -147,7 +147,7 @@ void Renderer::processInput()
 		if (hit) {
 			glm::ivec3 chunkCoords = glm::floor(hitPosition);
 
-			chunk.removeBlock(chunkCoords.x, chunkCoords.y, chunkCoords.z);
+			world.current_chunk->removeBlock(chunkCoords.x, chunkCoords.y, chunkCoords.z);
 		}
 	}
 }
@@ -189,14 +189,15 @@ void Renderer::drawDebugGUI() {
 		}
 		ImGui::Text("FPS: %d", FPS);
 
-		int renderedBlocks{};
-		for (int i = 0; i < chunk.blocks.size(); i++) {
-			if (chunk.blocks[i].bVisible) {
-				renderedBlocks = i;
+		int activeChunks{0};
+		for (int x = 0; x < 8; x++) {
+			for (int z = 0; z < 8; z++) {
+				if (world.w_chunks[x][z].bVisibleOnScreen)
+					activeChunks++;
 			}
 		}
-		ImGui::Text("Blocks map size: %d", chunk.blocks.size());
-		ImGui::Text("Blocks rendered size: %d", renderedBlocks);
+		ImGui::Text("Active chunks: %d", activeChunks);
+		ImGui::Text("Blocks rendered: %d", (int)world.current_chunk->blocks.size());
 
 		if (ImGui::Button("Oak Wood"))
 			bType = OAK_WOOD;
@@ -208,8 +209,6 @@ void Renderer::drawDebugGUI() {
 		ImGui::SameLine();
 		if (ImGui::Button("Dirt"))
 			bType = DIRT;
-		if (ImGui::Button("Door"))
-			bType = WOOD_DOOR;
 	}
 	ImGui::End();
 }

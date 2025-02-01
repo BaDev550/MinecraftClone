@@ -59,6 +59,11 @@ public:
 	std::vector<Vertex> vertices;
 
 	Block(BlockType type = AIR, glm::vec3 position = glm::vec3(0.0f)) : type(type), position(position) {}
+	~Block() {
+		glDeleteBuffers(1, &VBO);
+		glDeleteBuffers(1, &EBO);
+		glDeleteVertexArrays(1, &VAO);
+	}
 	void init();
 	void setVisibleFaces(bool top, bool bottom, bool left, bool right, bool front, bool back);
 

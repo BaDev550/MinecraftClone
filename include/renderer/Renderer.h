@@ -3,6 +3,7 @@
 #include <core/Window.h>
 #include <core/Camera.h>
 #include <core/Game/Chunk.h>
+#include <core/Game/World.h>
 #include <core/Ray.h>
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_opengl3.h>
@@ -24,10 +25,10 @@ private:
 	Texture texture_atlas;
 	Raycaster raycaster;
 
-	int viewDistance = 10;
-	int renderDistance = 25;
+	int viewDistance = 8;
 
-	Chunk chunk;
+	FrustumCulling frustum;
+	World world;
 
 	float deltaTime;
 	float lastFrame;
