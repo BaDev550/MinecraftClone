@@ -27,6 +27,7 @@ private:
 
 	int chunkSize = 8;
 	int viewDistance = 30;
+	Chunk* current_chunk;
 
 	FrustumCulling frustum;
 	World world;

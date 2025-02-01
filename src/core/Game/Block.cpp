@@ -100,6 +100,8 @@ void Block::setVisibleFaces(bool top, bool bottom, bool left, bool right, bool f
 	visibleFaces[3] = right;
 	visibleFaces[4] = front;
 	visibleFaces[5] = back;
+	if (type == GRASS && visibleFaces[0] == false) type = DIRT;
+
 	if ((top && bottom && left && right && front && back) == true) { bVisible = false; }
 	updateBuffers();
 }
@@ -246,6 +248,36 @@ std::vector<glm::vec2> Block::getUVCoords(int face)
 			glm::vec2(0.40625f, 0.31250f),
 			glm::vec2(0.43750f, 0.31250f),
 			glm::vec2(0.43750f, 0.25000f),
+		};
+	case GLASS:
+		return {
+			glm::vec2(0.75000f, 0.68750f),
+			glm::vec2(0.75000f, 0.75000f),
+			glm::vec2(0.78125f, 0.75000f),
+			glm::vec2(0.78125f, 0.68750f),
+		};
+	case FURNACE:
+		if (face == 4) {
+			return {
+				glm::vec2(0.46875f, 0.68750f),
+				glm::vec2(0.46875f, 0.75000f),
+				glm::vec2(0.50000f, 0.75000f),
+				glm::vec2(0.50000f, 0.68750f),
+			};
+		}
+		if (face == 0 || face == 1) {
+			return {
+				glm::vec2(0.56250f, 0.68750f),
+				glm::vec2(0.56250f, 0.75000f),
+				glm::vec2(0.59375f, 0.75000f),
+				glm::vec2(0.59375f, 0.68750f),
+			};
+		}
+		return {
+			glm::vec2(0.53125f, 0.68750f),
+			glm::vec2(0.53125f, 0.75000f),
+			glm::vec2(0.56250f, 0.75000f),
+			glm::vec2(0.56250f, 0.68750f),
 		};
 	default:
 		return {

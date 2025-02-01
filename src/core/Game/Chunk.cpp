@@ -93,12 +93,18 @@ bool Chunk::sendBlockProps(Block& block, glm::vec3& position) {
         return blocks.find(index) != blocks.end();
     };
 
-    bool top = (y == CHUNK_SIZE - 1 || !blockExists(x, y + 1, z) || blocks[blockIndex(x, y + 1, z)].getBlockType() == AIR);
-    bool bottom = (y == 0 || !blockExists(x, y - 1, z) || blocks[blockIndex(x, y - 1, z)].getBlockType() == AIR);
-    bool left = (x == 0 || !blockExists(x - 1, y, z) || blocks[blockIndex(x - 1, y, z)].getBlockType() == AIR);
-    bool right = (x == CHUNK_SIZE - 1 || !blockExists(x + 1, y, z) || blocks[blockIndex(x + 1, y, z)].getBlockType() == AIR);
-    bool front = (z == CHUNK_SIZE - 1 || !blockExists(x, y, z + 1) || blocks[blockIndex(x, y, z + 1)].getBlockType() == AIR);
-    bool back = (z == 0 || !blockExists(x, y, z - 1) || blocks[blockIndex(x, y, z - 1)].getBlockType() == AIR);
+    auto isTransparentBlock = [&](int x, int y, int z) -> bool {
+        if (!blockExists(x, y, z)) return true; 
+        BlockType neighborType = blocks[blockIndex(x, y, z)].getBlockType();
+        return neighborType == AIR || neighborType == GLASS; 
+    };
+
+    bool top = (y == CHUNK_SIZE - 1 || isTransparentBlock(x, y + 1, z));
+    bool bottom = (y == 0 || isTransparentBlock(x, y - 1, z));
+    bool left = (x == 0 || isTransparentBlock(x - 1, y, z));
+    bool right = (x == CHUNK_SIZE - 1 || isTransparentBlock(x + 1, y, z));
+    bool front = (z == CHUNK_SIZE - 1 || isTransparentBlock(x, y, z + 1));
+    bool back = (z == 0 || isTransparentBlock(x, y, z - 1));
 
     block.setVisibleFaces(top, bottom, left, right, front, back);
     return block.bVisible;
@@ -131,7 +137,7 @@ void Chunk::generateTrain(int chunkX, int chunkZ, int seed)
 
     for (int x = 0; x < CHUNK_SIZE; ++x) {
         for (int z = 0; z < CHUNK_SIZE; ++z) {
-            height = round(getTerrainHeight(chunkX, chunkZ, x, z, seed));
+            height = seed != 1 ? round(getTerrainHeight(chunkX, chunkZ, x, z, seed)) : 0;
             for (int y = 0; y < CHUNK_SIZE - height; ++y) {
                 BlockType type = (y == 0) ? BEDROCK : (y == (CHUNK_SIZE - height) - 1) ? GRASS : ((y > (CHUNK_SIZE - height) / 2) ? DIRT : STONE);
 

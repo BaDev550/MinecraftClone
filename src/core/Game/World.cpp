@@ -72,6 +72,4 @@ void World::renderNearChunks(const glm::vec3& playerPos, Texture& textureAtlas, 
 			w_chunks[x][z].renderChunk(shader, textureAtlas, playerPos, renderDistance);
 		}
 	}
-
-	current_chunk = getCurrentChunk(playerPos) == NULL ? &w_chunks[0][0] : getCurrentChunk(playerPos);
 }

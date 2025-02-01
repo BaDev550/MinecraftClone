@@ -37,6 +37,8 @@ enum BlockType {
 	ENDSTONE,
 	BEDROCK,
 	WOOD_DOOR,
+	FURNACE,
+	CRAFTING_TABLE
 };
 
 struct Vertex {

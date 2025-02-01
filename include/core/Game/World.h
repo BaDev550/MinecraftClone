@@ -10,7 +10,6 @@ class World
 {
 public:
 	std::vector<std::vector<Chunk>> w_chunks;
-	Chunk* current_chunk;
 
 	int w_ChunksX, w_ChunksZ;
 	int renderDistance = 35;

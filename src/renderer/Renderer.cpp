@@ -27,7 +27,7 @@ void Renderer::start(unsigned int width, unsigned int height, const char* title)
 	glfwSetCursorPosCallback(window.getWindow(), mouse_callback);
 
 	core_shader.setupShader("shaders/core_vertex.glsl", "shaders/core_fragment.glsl");
-	texture_atlas.setTexture("textures/stay_true.png");
+	texture_atlas.setTexture("textures/texture_atlas.png");
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -94,8 +94,9 @@ void Renderer::render()
 	//glCullFace(GL_FRONT);
 	//glFrontFace(GL_CCW);
 	world.renderNearChunks(camera.Position, texture_atlas, core_shader, viewDistance);
+	current_chunk = world.getCurrentChunk(camera.Position) == NULL ? &world.w_chunks[0][0] : world.getCurrentChunk(camera.Position);
 
-	for (const auto& block : world.current_chunk->blocks) {
+	for (const auto& block : current_chunk->blocks) {
 		glm::vec3 minBounds = block.second.position;
 		glm::vec3 maxBounds = block.second.position + glm::vec3(1.0f);
 
@@ -140,20 +141,20 @@ void Renderer::processInput()
 	if (window.getInput().isKeyPressed(GLFW_KEY_F, false, true))
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-	if (!world.w_chunks.empty()) {
+	if (!world.w_chunks.empty() && (glfwGetInputMode(glfwGetCurrentContext(), GLFW_CURSOR) == GLFW_CURSOR_DISABLED)) {
 		if (window.getInput().isMouseButtonClicked(GLFW_MOUSE_BUTTON_RIGHT)) {
 			if (hit) {
 				glm::ivec3 chunkCoords = glm::floor(hitPosition);
 
-				world.current_chunk->addBlock(chunkCoords.x, chunkCoords.y, chunkCoords.z, bType, camera.Position, camera.Front);
+				current_chunk->addBlock(chunkCoords.x, chunkCoords.y, chunkCoords.z, bType, camera.Position, camera.Front);
 			}
 		}
 
-		if (window.getInput().isMouseButtonClicked(GLFW_MOUSE_BUTTON_LEFT)) {
+		if (window.getInput().isMouseButtonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
 			if (hit) {
 				glm::ivec3 chunkCoords = glm::floor(hitPosition);
 
-				world.current_chunk->removeBlock(chunkCoords.x, chunkCoords.y, chunkCoords.z);
+				current_chunk->removeBlock(chunkCoords.x, chunkCoords.y, chunkCoords.z);
 			}
 		}
 	}
@@ -183,10 +184,11 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 
 int frameCounter;
 int FPS = 0;
+char texture_name[256] = "";
 
 void Renderer::drawDebugGUI() {
 	if (ImGui::Begin("Debugger") && !world.w_chunks.empty()) {
-		ImGui::SetWindowSize(ImVec2(300, 400));
+		ImGui::SetWindowSize(ImVec2(300, 350));
 		ImGui::SetWindowPos(ImVec2(1.5f, ((window.getFBHeight() * -1.0f) / 200.f) + 1.5f ));
 
 		frameCounter++;
@@ -204,7 +206,7 @@ void Renderer::drawDebugGUI() {
 			}
 		}
 		ImGui::Text("Active chunks: %d", activeChunks);
-		ImGui::Text("Blocks rendered: %d", (int)world.current_chunk->blocks.size());
+		ImGui::Text("Blocks rendered: %d", (int)current_chunk->blocks.size());
 		if (ImGui::InputInt("View Distance", &viewDistance));
 
 		if (ImGui::Button("Oak Wood"))
@@ -217,9 +219,23 @@ void Renderer::drawDebugGUI() {
 		ImGui::SameLine();
 		if (ImGui::Button("Dirt"))
 			bType = DIRT;
+		if (ImGui::Button("Grass"))
+			bType = GRASS;
+		ImGui::SameLine();
+		if (ImGui::Button("Glass"))
+			bType = GLASS;
+		if (ImGui::Button("Furnace"))
+			bType = FURNACE;
 
 		if (ImGui::Button("Clear World")) {
 			world.w_chunks.clear();
+		}
+
+		ImGui::InputText("Texture Name", texture_name, IM_ARRAYSIZE(texture_name));
+		if (ImGui::Button("Load Texture")) {
+			std::string texturePath = "textures/" + std::string(texture_name);
+			texture_atlas.deleteTexture();
+			texture_atlas.setTexture(texturePath);
 		}
 
 		ImGui::Text("SHIFT+M To cursor mode");
@@ -232,6 +248,10 @@ void Renderer::drawDebugGUI() {
 		if (ImGui::InputInt("Chunk size", &chunkSize));
 		if (ImGui::InputInt("Seed", &world.seed));
 		if (ImGui::Button("Generate World")) {
+			world.generateWorld(chunkSize, chunkSize);
+		}
+		if (ImGui::Button("Generate flat World")) {
+			world.seed = 1;
 			world.generateWorld(chunkSize, chunkSize);
 		}
 	}
